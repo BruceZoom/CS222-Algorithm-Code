@@ -107,60 +107,71 @@ int main()
         for(i=0; i<m; i++)
         {
             infile >> j >> k >> l;
-            if(j == 0)
-            {
-                // k death before l birth
-                add(death(k), birth(l));
-            }
-            else
+            k--;l--;
+            if(j)
             {
                 // overlap
                 add(birth(k), death(l));
                 add(birth(l), death(k));
-            }
-            
-            i = 0;
-            while(i < 2*n)
+            }            
+            else
             {
-                if(V[i].dg == 0)
-                {
-                    Q.EnQueue(i);
-                }
-                i++;
+                // k death before l birth
+                add(death(k), birth(l));
             }
-            if(Q.IsEmpty()){
-                outfile << "fail\n";
-                continue;
-            }
-
-            // topological sort
-            k = 0;
-            while(!Q.IsEmpty())
-            {
-                i = Q.DeQueue();
-                V[i].dg = k++;
-                for(j = 0; j<V[i].succs.size(); j++)
-                {
-                    l = V[i].succs[j];
-                    V[l].dg--;
-                    if(V[l].dg == 0)
-                    {
-                        Q.EnQueue(l);
-                    }
-                }
-            }
-
-            for(i=0;i<n;i++)
-            {
-                outfile << V[birth(i)].dg << " ";
-            }
-            outfile << endl;
-            for(i=0;i<n;i++)
-            {
-                outfile << V[death(j)].dg << " ";
-            }
-            outfile << endl;
         }
+
+        // find begin points
+        i = 0;
+        while(i < 2*n)
+        {
+            if(V[i].dg == 0)
+            {
+                Q.EnQueue(i);
+            }
+            i++;
+        }
+        // check inconsistency
+        // WRONG! SHOULD CHECK CYCLE!
+        // if(Q.IsEmpty()){
+        //     outfile << "fail\n";
+        //     continue;
+        // }
+        
+
+        // topological sort
+        k = 0;
+        while(!Q.IsEmpty())
+        {
+            i = Q.DeQueue();
+            V[i].dg = k++;
+            for(j = 0; j<V[i].succs.size(); j++)
+            {
+                l = V[i].succs[j];
+                V[l].dg--;
+                if(V[l].dg == 0)
+                {
+                    Q.EnQueue(l);
+                }
+            }
+        }
+
+        // check inconsistency
+        if(k < 2*n){
+            outfile << "fail\n";
+            continue;
+        }
+
+        for(i=0;i<n;i++)
+        {
+            outfile << V[birth(i)].dg << " ";
+        }
+        outfile << endl;
+        for(i=0;i<n;i++)
+        {
+            outfile << V[death(i)].dg << " ";
+        }
+        outfile << endl;
     }
 
     infile.close();
